@@ -16,7 +16,7 @@
 {{ end }}
 
 {{ block "form" . }}
-<form hx-target="body" hx-post="/contacts"> 
+<form hx-swap="outerHTML" hx-target="#contacts" hx-post="/contacts"> 
     name: <input type="text" name="name" />
     email: <input type="text" name="email" />
     <button type="submit"> Create Contact </button>
@@ -24,12 +24,12 @@
 {{ end }}
 
 {{ block "display" . }}
-<div style="background-color: #eee; margin: 2px; display: flex; flex-direction: column">
-        {{ range .Contacts }}
-        <div>
-            Name: <span>{{ .Name }}</span>
-            Email: <span>{{ .Email }}</span>
-        </div>
-    {{ end }}
-</div>
+    <div id="contacts" style="background-color: #eee; margin: 2px; display: flex; flex-direction: column">
+            {{ range .Contacts }}
+            <div>
+                Name: <span>{{ .Name }}</span>
+                Email: <span>{{ .Email }}</span>
+            </div>
+        {{ end }}
+    </div>
 {{ end }}

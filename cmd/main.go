@@ -73,7 +73,7 @@ func main() {
 
 		data.Contacts = append(data.Contacts, newContact(name, email))
 
-		return c.Render(http.StatusOK, "index", data)
+		return c.Render(http.StatusOK, "display", data)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
