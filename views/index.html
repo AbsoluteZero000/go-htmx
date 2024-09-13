@@ -62,7 +62,7 @@
 
 
 {{ block "oob-contact" . }}
-    <div dx-swap-oob="#contacts">
+    <div id="contacts" dx-swap-oob="afterbegin">
         {{ template "contact" . }}
     </div>
 {{ end }} 
