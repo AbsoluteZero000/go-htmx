@@ -1,9 +1,12 @@
 package main
 
 import (
+	"errors"
 	"html/template"
 	"io"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -23,17 +26,31 @@ func newTemplate() *Templates {
 	}
 }
 
+var id = 0
+
 type Contact struct {
 	Name  string
 	Email string
+	Id    int
 }
 
 func newContact(name string, email string) Contact {
+	id++
 	return Contact{
 		Name:  name,
 		Email: email,
+		Id:    id,
 	}
 
+}
+
+func indexOfContact(page Page, id int) (int, error) {
+	for i, contact := range page.Data.Contacts {
+		if contact.Id == id {
+			return i, nil
+		}
+	}
+	return 0, errors.New("Contact not found")
 }
 
 type Contacts = []Contact
@@ -87,6 +104,8 @@ func newPage() Page {
 func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
+	e.Static("/images", "images")
+	e.Static("/css", "css")
 
 	page := newPage()
 	e.Renderer = newTemplate()
@@ -116,5 +135,23 @@ func main() {
 		return c.Render(http.StatusOK, "oob-contact", contact)
 	})
 
+	e.DELETE("/contacts/:id", func(c echo.Context) error {
+		time.Sleep(4 * time.Second)
+		idstr := c.Param("id")
+		id, err := strconv.Atoi(idstr)
+		if err != nil {
+			return c.String(400, "Invalid id")
+
+		}
+		i, err := indexOfContact(page, id)
+		if err != nil {
+			return c.String(404, "id doesn't exist")
+		}
+
+		page.Data.Contacts = append(page.Data.Contacts[:i], page.Data.Contacts[i+1:]...)
+
+		return c.NoContent(200)
+
+	})
 	e.Logger.Fatal(e.Start(":42069"))
 }
